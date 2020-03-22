@@ -42,5 +42,13 @@ namespace TicketToRideModelingPractice.Classes
         {
             return Origin.ToString() + " -> " + Destination.ToString() + "(" + Length.ToString() + ", " + Color.ToString() + ")";
         }
+
+        public City GetOppositeCity(City origin)
+        {
+            if (origin == Origin)
+                return Destination;
+            else
+                return Origin;
+        }
     }
 }

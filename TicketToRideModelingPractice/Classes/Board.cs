@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TicketToRideModelingPractice.Enums;
 using TicketToRideModelingPractice.Extensions;
@@ -15,6 +16,8 @@ namespace TicketToRideModelingPractice.Classes
         public List<TrainCard> Deck { get; set; } = new List<TrainCard>();
 
         public List<TrainCard> DiscardPile { get; set; } = new List<TrainCard>();
+
+        public List<TrainCard> ShownCards { get; set; } = new List<TrainCard>();
 
         public Board()
         {
@@ -181,6 +184,8 @@ namespace TicketToRideModelingPractice.Classes
             deck.AddRange(CreateSingleColorCollection(TrainColor.Locomotive, 14));
 
             deck.Shuffle();
+
+            this.Deck = deck;
         }
 
         private List<TrainCard> CreateSingleColorCollection(TrainColor color, int count)
@@ -193,18 +198,53 @@ namespace TicketToRideModelingPractice.Classes
             return cards;
         }
 
-        public bool ClaimRoute(City origin, City destination, TrainColor color, int length, PlayerColor playerColor)
+        public void AddShownCards()
         {
-            var selectedRoute = Routes.GetSpecificRoute(origin, destination, color, length);
-
-            if (selectedRoute == null) return false;
-
-            Routes.Routes.Remove(selectedRoute);
-            selectedRoute.IsOccupied = true;
-            selectedRoute.OccupyingPlayerColor = playerColor;
-            Routes.Routes.Add(selectedRoute);
-            return true;
+            while (ShownCards.Count < 5)
+            {
+                var newCard = Deck.Pop(1);
+                ShownCards.AddRange(newCard);
+            }
         }
-            
+
+        public void PopulateShownCards()
+        {
+            if (Deck.Count < 10)
+            {
+                //Shuffle the discard pile into the deck
+                var allCards = DiscardPile;
+                allCards.AddRange(Deck.Pop(Deck.Count));
+                
+                allCards.Shuffle();
+
+                Deck = allCards;
+                DiscardPile = new List<TrainCard>();
+            }
+
+            AddShownCards();
+
+            var locomotiveCount = ShownCards.Where(x => x.Color == TrainColor.Locomotive).Count();
+            while(locomotiveCount >= 3)
+            {
+                Console.WriteLine("Shown cards contains 3 or more locomotives!");
+
+                //Discard the shown cards
+                DiscardPile.AddRange(ShownCards);
+                ShownCards = new List<TrainCard>();
+
+                //Add a new set of shown cards
+                AddShownCards();
+                locomotiveCount = ShownCards.Where(x => x.Color == TrainColor.Locomotive).Count();
+            }
+        }
+
+        public void DisplayShownCards()
+        {
+            Console.WriteLine("Shown Cards:");
+            foreach(var card in ShownCards)
+            {
+                Console.WriteLine(card.Color);
+            }
+        }
     }
 }
