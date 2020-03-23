@@ -30,10 +30,7 @@ namespace TicketToRideModelingPractice.Classes
         public Player(string name, PlayerColor color, Board board)
         {
             Name = name;
-            DestinationCards = board.DestinationCards.Take(3).ToList();
-            board.DestinationCards.RemoveAt(0);
-            board.DestinationCards.RemoveAt(0);
-            board.DestinationCards.RemoveAt(0);
+            DestinationCards = board.DestinationCards.Pop(3).ToList();
             Color = color;
             Board = board;
 
@@ -239,8 +236,6 @@ namespace TicketToRideModelingPractice.Classes
             {
                 DrawCards();
             }
-
-            Console.WriteLine(Name + " has " + RemainingTrainCars + " trains left!");
         }
 
         //If the player cannot draw destination cards or claim a route, they need to draw train cards.
@@ -252,8 +247,6 @@ namespace TicketToRideModelingPractice.Classes
         //If no desired colors and no locomotives are showing, they will take two off the deck.
         public void DrawCards()
         {
-            Console.WriteLine(Name + " needs to draw cards!");
-
             //If the player wants a grey route, they will also be able to take whatever they have the most of already
             if (DesiredColors.Contains(TrainColor.Grey))
             {
@@ -291,11 +284,11 @@ namespace TicketToRideModelingPractice.Classes
                 //Also take one from the deck
                 var deckCard = Board.Deck.Pop(1).First();
                 Hand.Add(deckCard);
-                Console.WriteLine(Name + " also takes one off the top.");
+                Console.WriteLine(Name + " also draws one card from the deck.");
             }
             else if (matchingColors.Count() == 0 && Board.ShownCards.Any(x=>x.Color == TrainColor.Locomotive))
             {
-                Console.WriteLine(Name + "takes the shown locomotive.");
+                Console.WriteLine(Name + " takes the shown locomotive.");
                 //Take the locomotive card
                 var card = Board.ShownCards.First(x => x.Color == TrainColor.Locomotive);
                 Board.ShownCards.Remove(card);
@@ -303,7 +296,7 @@ namespace TicketToRideModelingPractice.Classes
             }
             else
             {
-                Console.WriteLine(Name + " takes two off the top.");
+                Console.WriteLine(Name + " draws two cards from the deck.");
                 //Take two cards from the deck
                 var cards = Board.Deck.Pop(2);
                 Hand.AddRange(cards);
@@ -472,8 +465,8 @@ namespace TicketToRideModelingPractice.Classes
             //Now, find a route for that color
             var matchingRoute = Board.Routes.Routes.Where(x => !x.IsOccupied
                                                                && (x.Color == mostPopularColor || x.Color == TrainColor.Grey))
-                                            .OrderByDescending(x => x.Length)
-                                            .FirstOrDefault();
+                                                   .OrderByDescending(x => x.Length)
+                                                   .FirstOrDefault();
 
             if(matchingRoute != null)
             {
@@ -504,7 +497,7 @@ namespace TicketToRideModelingPractice.Classes
                 if (isConnected)
                 {
                     claimedRouteScore += card.PointValue;
-                    output += " (SUCCESS)";
+                    output += " (SUCCEEDED)";
                 }
                 else
                 {
@@ -519,6 +512,11 @@ namespace TicketToRideModelingPractice.Classes
             }
 
             Console.WriteLine(Name + " scored " + claimedRouteScore.ToString() + " points!");
+
+            if(claimedRouteScore == 0)
+            {
+                Console.WriteLine("Please congratulate " + Name + " on having a \"perfect\" game!");
+            }
         }
     }
 }

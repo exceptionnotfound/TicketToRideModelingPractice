@@ -87,9 +87,9 @@ namespace TicketToRideModelingPractice
                     Console.WriteLine("FINAL TURN");
                 }
 
-                Console.WriteLine("Destination Cards Remaining: " + board.DestinationCards.Count);
+                Console.WriteLine(Environment.NewLine);
 
-                Console.ReadLine();
+                //Console.ReadLine();
             }
 
             Console.WriteLine("GAME OVER!");

@@ -7,11 +7,34 @@ namespace TicketToRideModelingPractice.Classes
 {
     public class BoardRoute
     {
+        /// <summary>
+        /// The "starting point" of the route.
+        /// </summary>
         public City Origin { get; set; }
+
+        /// <summary>
+        /// The "ending point" of the route.
+        /// </summary>
         public City Destination { get; set; }
+
+        /// <summary>
+        /// The color of train cards necessary to claim this route (can be grey)
+        /// </summary>
         public TrainColor Color { get; set; }
+
+        /// <summary>
+        /// The number of cards necessary to claim this route (1-6)
+        /// </summary>
         public int Length { get; set; }
+
+        /// <summary>
+        /// True if the route is already claimed.
+        /// </summary>
         public bool IsOccupied { get; set; }
+
+        /// <summary>
+        /// Calculated from the Length value.
+        /// </summary>
         public int PointValue
         {
             get
@@ -28,6 +51,10 @@ namespace TicketToRideModelingPractice.Classes
                 }
             }
         }
+
+        /// <summary>
+        /// If not null, is the color of the player who has claimed this route.
+        /// </summary>
         public PlayerColor? OccupyingPlayerColor { get; set; }
 
         public BoardRoute(City origin, City destination, TrainColor color, int length)
@@ -36,19 +63,6 @@ namespace TicketToRideModelingPractice.Classes
             Destination = destination;
             Color = color;
             Length = length;
-        }
-
-        public string Display()
-        {
-            return Origin.ToString() + " -> " + Destination.ToString() + "(" + Length.ToString() + ", " + Color.ToString() + ")";
-        }
-
-        public City GetOppositeCity(City origin)
-        {
-            if (origin == Origin)
-                return Destination;
-            else
-                return Origin;
         }
     }
 }

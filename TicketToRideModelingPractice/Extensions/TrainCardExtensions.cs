@@ -9,17 +9,6 @@ namespace TicketToRideModelingPractice.Extensions
 {
     public static class TrainCardExtensions
     {
-        public static TrainCard Pop(this List<TrainCard> cards, TrainColor color)
-        {
-            if(cards.Any(x=>x.Color == color))
-            {
-                var selectedCard = cards.First(x => x.Color == color);
-                cards.Remove(selectedCard);
-                return selectedCard;
-            }
-            return null;
-        }
-
         public static List<TrainCard> GetMatching(this List<TrainCard> cards, TrainColor color, int count)
         {
             if(cards.Where(x=>x.Color == color).Count() >= count)
@@ -78,6 +67,42 @@ namespace TicketToRideModelingPractice.Extensions
                         .OrderByDescending(x => x.Count)
                         .First()
                         .Color;
+        }
+
+        public static List<DestinationCard> Shuffle(this List<DestinationCard> cards)
+        {
+            Random r = new Random();
+            //Step 1: For each unshuffled item in the collection
+            for (int n = cards.Count - 1; n > 0; --n)
+            {
+                //Step 2: Randomly pick an item which has not been shuffled
+                int k = r.Next(n + 1);
+
+                //Step 3: Swap the selected item with the last "unstruck" letter in the collection
+                DestinationCard temp = cards[n];
+                cards[n] = cards[k];
+                cards[k] = temp;
+            }
+
+            return cards;
+        }
+
+        public static List<TrainCard> Shuffle(this List<TrainCard> cards)
+        {
+            Random r = new Random();
+            //Step 1: For each unshuffled item in the collection
+            for (int n = cards.Count - 1; n > 0; --n)
+            {
+                //Step 2: Randomly pick an item which has not been shuffled
+                int k = r.Next(n + 1);
+
+                //Step 3: Swap the selected item with the last "unstruck" letter in the collection
+                TrainCard temp = cards[n];
+                cards[n] = cards[k];
+                cards[k] = temp;
+            }
+
+            return cards;
         }
     }
 }

@@ -198,7 +198,7 @@ namespace TicketToRideModelingPractice.Classes
             return cards;
         }
 
-        public void AddShownCards()
+        public void FlipShownCards()
         {
             while (ShownCards.Count < 5)
             {
@@ -221,29 +221,20 @@ namespace TicketToRideModelingPractice.Classes
                 DiscardPile = new List<TrainCard>();
             }
 
-            AddShownCards();
+            FlipShownCards();
 
             var locomotiveCount = ShownCards.Where(x => x.Color == TrainColor.Locomotive).Count();
             while(locomotiveCount >= 3)
             {
-                Console.WriteLine("Shown cards contains 3 or more locomotives!");
+                Console.WriteLine("Shown cards has 3 or more locomotives! Burning the shown cards.");
 
                 //Discard the shown cards
                 DiscardPile.AddRange(ShownCards);
                 ShownCards = new List<TrainCard>();
 
                 //Add a new set of shown cards
-                AddShownCards();
+                FlipShownCards();
                 locomotiveCount = ShownCards.Where(x => x.Color == TrainColor.Locomotive).Count();
-            }
-        }
-
-        public void DisplayShownCards()
-        {
-            Console.WriteLine("Shown Cards:");
-            foreach(var card in ShownCards)
-            {
-                Console.WriteLine(card.Color);
             }
         }
     }

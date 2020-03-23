@@ -16,19 +16,6 @@ namespace TicketToRideModelingPractice.Classes
             Routes.Add(new BoardRoute(origin, destination, color, length));
         }
 
-        public void MarkComplete(BoardRoute route)
-        {
-            var matchingRoute = Routes.First(x => (x.Origin == route.Origin
-                                                       && x.Destination == route.Destination)
-                                                  || (x.Origin == route.Destination
-                                                       && x.Destination == route.Origin)
-                                                  && x.Length == route.Length
-                                                  && x.Color == route.Color);
-            Routes.Remove(matchingRoute);
-            route.IsOccupied = true;
-            Routes.Add(route);
-        }
-
         public BoardRoute GetDirectRoute(City origin, City destination)
         {
             var route = Routes.Where(x => (x.Origin == origin && x.Destination == destination && !x.IsOccupied)
@@ -45,15 +32,6 @@ namespace TicketToRideModelingPractice.Classes
                               .FirstOrDefault();
 
             return route;
-        }
-
-        public BoardRoute GetSpecificRoute(City origin, City destination, TrainColor trainColor, int length)
-        {
-            var route = GetDirectRoute(origin, destination);
-
-            if (route != null && route.Length == length && route.Color == trainColor) return route;
-
-            return null;
         }
 
         public List<City> AlreadyCheckedCities = new List<City>();
@@ -266,43 +244,5 @@ namespace TicketToRideModelingPractice.Classes
 
             return returnRoutes.Any();
         }
-
-        //public bool IsAlreadyConnected(City origin, City destination, PlayerColor color)
-        //{
-        //    if (origin == destination)
-        //    {
-        //        return true;
-        //    }
-
-        //    //From the origin, select all routes that are claimed by this player
-        //    var claimedOriginRoutes = Routes.Where(x => x.IsOccupied && x.OccupyingPlayerColor == color
-        //                                          && (x.Origin == origin || x.Destination == origin)).ToList();
-
-        //    if (!claimedOriginRoutes.Any())
-        //        return false;
-
-        //    bool isConnected = false;
-
-        //    //For each of these routes, connect to their destination cities.
-        //    var oppositeCities = new List<City>();
-        //    foreach(var route in claimedOriginRoutes)
-        //    {
-        //        //If any of the opposite cities are the sought destination, we are done.
-        //        var oppositeCity = route.GetOppositeCity(origin);
-        //        if(oppositeCity == destination || oppositeCity == origin)
-        //        {
-        //            return true;
-        //        }
-
-        //        //If not, the new origin is the opposite city, and we are still looking for the original destination
-        //        AlreadyCheckedCities.Add(origin);
-        //        if (!AlreadyCheckedCities.Contains(oppositeCity))
-        //        {
-        //            isConnected = isConnected || IsAlreadyConnected(oppositeCity, destination, color);
-        //        }
-        //    }
-
-        //    return false;
-        //}
     }
 }
