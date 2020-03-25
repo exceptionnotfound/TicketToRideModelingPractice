@@ -9,22 +9,31 @@ namespace TicketToRideModelingPractice.Classes
 {
     public class Player
     {
+        //The player's name
         public string Name { get; set; }
 
+        //The player's current collection of destination cards.
         public List<DestinationCard> DestinationCards { get; set; } = new List<DestinationCard>();
 
+        //The routes the player wants to claim at any given time.
         public List<BoardRoute> TargetedRoutes { get; set; } = new List<BoardRoute>();
 
+        //All the cities this Player has already connected.
         public List<City> ConnectedCities { get; set; } = new List<City>();
 
+        //The player's color (e.g. red, blue, black, green, or yellow)
         public PlayerColor Color { get; set; }
 
+        //The Player's current collection of train cards.
         public List<TrainCard> Hand { get; set; } = new List<TrainCard>();
 
+        //When one player has 2 or less train cars the remaining, the final turn begins.
         public int RemainingTrainCars { get; set; } = 48;
 
+        //The train card colors this Player wants to draw.
         public List<TrainColor> DesiredColors { get; set; } = new List<TrainColor>();
 
+        //A reference to the game board
         public Board Board { get; set; }
 
         public Player(string name, PlayerColor color, Board board)
@@ -37,62 +46,61 @@ namespace TicketToRideModelingPractice.Classes
             CalculateTargetedRoutes();
         }
 
-        public List<BoardRoute> CalculateTargetedRoutes(DestinationCard card)
+    public List<BoardRoute> CalculateTargetedRoutes(DestinationCard card)
+    {
+        var allRoutes = new List<BoardRoute>();
+
+        //Are the origin and destination already connected?
+        if(Board.Routes.IsAlreadyConnected(card.Origin, card.Destination, Color))
         {
-            var allRoutes = new List<BoardRoute>();
-
-            //Are the origin and destination already connected?
-            if(Board.Routes.IsAlreadyConnected(card.Origin, card.Destination, Color))
-            {
-                return allRoutes;
-            }
-            Board.Routes.AlreadyCheckedCities.Clear();
-
-            //If the cities aren't already connected, attempt to connect them from something we've already connected.
-            foreach(var city in ConnectedCities)
-            {
-                var foundDestinationRoutes = Board.Routes.FindIdealUnclaimedRoute(city, card.Destination);
-                if(foundDestinationRoutes.Any())
-                {
-                    allRoutes.AddRange(foundDestinationRoutes);
-                    break;
-                }
-
-                var foundOriginRoutes = Board.Routes.FindIdealUnclaimedRoute(card.Origin, city);
-                if(foundOriginRoutes.Any())
-                {
-                    allRoutes.AddRange(foundOriginRoutes);
-                    break;
-                }
-            }
-
-            //If we can't connect them from something we have already connected, can we make a brand new connection?
-            allRoutes = Board.Routes.FindIdealUnclaimedRoute(card.Origin, card.Destination);
-
-            var routesToRemove = new List<BoardRoute>();
-            foreach(var route in allRoutes)
-            {
-                var matchingRoutes = Board.Routes.Routes.Where(x => x.Length == route.Length && x.IsOccupied && x.OccupyingPlayerColor == Color &&
-                                                               ((x.Origin == route.Origin && x.Destination == route.Destination)
-                                                               || x.Origin == route.Destination && x.Destination == route.Origin));
-
-                if (matchingRoutes.Any())
-                    routesToRemove.Add(route);
-            }
-
-            foreach(var route in routesToRemove)
-            {
-                allRoutes.Remove(route);
-            }
-
             return allRoutes;
         }
+        Board.Routes.AlreadyCheckedCities.Clear();
+
+        //If the cities aren't already connected, attempt to connect them from something we've already connected.
+        foreach(var city in ConnectedCities)
+        {
+            var foundDestinationRoutes = Board.Routes.FindIdealUnclaimedRoute(city, card.Destination);
+            if(foundDestinationRoutes.Any())
+            {
+                allRoutes.AddRange(foundDestinationRoutes);
+                break;
+            }
+
+            var foundOriginRoutes = Board.Routes.FindIdealUnclaimedRoute(card.Origin, city);
+            if(foundOriginRoutes.Any())
+            {
+                allRoutes.AddRange(foundOriginRoutes);
+                break;
+            }
+        }
+
+        //If we can't connect them from something we have already connected, can we make a brand new connection?
+        allRoutes = Board.Routes.FindIdealUnclaimedRoute(card.Origin, card.Destination);
+
+        var routesToRemove = new List<BoardRoute>();
+        foreach(var route in allRoutes)
+        {
+            var matchingRoutes = Board.Routes.Routes.Where(x => x.Length == route.Length && x.IsOccupied && x.OccupyingPlayerColor == Color &&
+                                                            ((x.Origin == route.Origin && x.Destination == route.Destination)
+                                                            || x.Origin == route.Destination && x.Destination == route.Origin));
+
+            if (matchingRoutes.Any())
+                routesToRemove.Add(route);
+        }
+
+        foreach(var route in routesToRemove)
+        {
+            allRoutes.Remove(route);
+        }
+
+        return allRoutes;
+    }
 
         public void CalculateTargetedRoutes()
         {
             var allRoutes = new List<BoardRoute>();
 
-            //Get the highest point-value destination card
             var highestCards = DestinationCards.OrderBy(x => x.PointValue).ToList();
 
             foreach(var destCard in highestCards)
@@ -111,44 +119,33 @@ namespace TicketToRideModelingPractice.Classes
                                           Metric = group.Key,
                                           Count = group.Count()
                                       }).OrderByDescending(x => x.Count)
-                                        .ThenBy(x => x.Metric.Length)
+                                        .ThenByDescending(x => x.Metric.Length)
                                         .Take(5)
                                         .Select(x => new BoardRoute(x.Metric.Origin, x.Metric.Destination, x.Metric.Color, x.Metric.Length))
                                         .ToList();
 
-            //If there is another exact route for any of these routes, and that route is claimed by this player,
-            //remove it from the targeted routes.
-            List<BoardRoute> routesToRemove = new List<BoardRoute>();
-            foreach(var route in TargetedRoutes)
-            {
-                var matchingRoutes = Board.Routes.Routes.Where(x => x.Origin == route.Origin
-                                                                  && x.Destination == route.Destination
-                                                                  && x.Color == route.Color
-                                                                  && x.Length == route.Length
-                                                                  && x.IsOccupied == true
-                                                                  && x.OccupyingPlayerColor == this.Color);
 
-                if (matchingRoutes.Any())
-                {
-                    
-                    routesToRemove.AddRange(matchingRoutes);
-                }
-            }
-
-            if (routesToRemove.Any())
-            {
-                foreach(var route in routesToRemove)
-                {
-                    var selectedRoute = TargetedRoutes.First(x => x.Origin == route.Origin
-                                                                  && x.Destination == route.Destination
-                                                                  && x.Length == route.Length
-                                                                  && x.Color == route.Color);
-                    TargetedRoutes.Remove(selectedRoute);
-                }
-            }
             DesiredColors = TargetedRoutes.Select(x => x.Color)
                                           .Distinct()
                                           .ToList();
+
+            if(!DesiredColors.Any())
+            {
+                //The player should target what they have the most of
+
+                var color = Hand.GroupBy(x => x.Color)
+                             .Select(group =>
+                             new
+                             {
+                                 Color = group.Key,
+                                 Count = group.Count()
+                             })
+                             .OrderByDescending(x => x.Count)
+                             .Select(x => x.Color)
+                             .First();
+
+                DesiredColors.Add(color);
+            }
         }
 
         public void OutputPlayerSummary()
@@ -212,7 +209,7 @@ namespace TicketToRideModelingPractice.Classes
                 {
                     Console.WriteLine("No destination cards remain! " + Name + " must do something else!");
                 }
-                else if (DestinationCards.Count < 6)
+                else if (DestinationCards.Count < 5)
                 {
                     DrawDestinationCards();
                     return;
@@ -250,7 +247,7 @@ namespace TicketToRideModelingPractice.Classes
             //If the player wants a grey route, they will also be able to take whatever they have the most of already
             if (DesiredColors.Contains(TrainColor.Grey))
             {
-                var mostPopularColor = Hand.GetMostPopularColor();
+                var mostPopularColor = Hand.GetMostPopularColor(DesiredColors);
                 DesiredColors.Add(mostPopularColor);
                 DesiredColors.Remove(TrainColor.Grey);
             }
@@ -434,7 +431,7 @@ namespace TicketToRideModelingPractice.Classes
 
                 RemainingTrainCars = RemainingTrainCars - route.Length;
 
-                Console.WriteLine(Name + " claims the route " + route.Origin + " to " + route.Destination + "!");
+                Console.WriteLine(Name + " claims the route " + route.Origin + " to " + route.Destination + " (" + color + ")!");
 
                 return true;
             }
@@ -452,15 +449,15 @@ namespace TicketToRideModelingPractice.Classes
 
             RemainingTrainCars = RemainingTrainCars - route.Length;
 
-            Console.WriteLine(Name + " claims the route " + route.Origin + " to " + route.Destination + "!");
+            Console.WriteLine(Name + " claims the route " + route.Origin + " to " + route.Destination + " (" + color + ")!");
 
             return true;
         }
 
         public void ClaimLongestUnclaimedRoute()
         {
-            //Find the color we have the most of
-            var mostPopularColor = Hand.GetMostPopularColor();
+            //Find the color we have the most of, so long as it isn't one of the desired colors.
+            var mostPopularColor = Hand.GetMostPopularColor(DesiredColors);
 
             //Now, find a route for that color
             var matchingRoute = Board.Routes.Routes.Where(x => !x.IsOccupied

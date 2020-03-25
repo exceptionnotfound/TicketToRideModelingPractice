@@ -7,7 +7,7 @@ using TicketToRideModelingPractice.Enums;
 
 namespace TicketToRideModelingPractice.Extensions
 {
-    public static class TrainCardExtensions
+    public static class CardExtensions
     {
         public static List<TrainCard> GetMatching(this List<TrainCard> cards, TrainColor color, int count)
         {
@@ -52,12 +52,13 @@ namespace TicketToRideModelingPractice.Extensions
             return returnCards;
         }
 
-        public static TrainColor GetMostPopularColor(this List<TrainCard> cards)
+        public static TrainColor GetMostPopularColor(this List<TrainCard> cards, List<TrainColor> desiredColors)
         {
             if (!cards.Any())
                 return TrainColor.Locomotive;
 
-            return cards.GroupBy(x => x.Color)
+            var colors = cards.Where(x => x.Color != TrainColor.Locomotive)
+                        .GroupBy(x => x.Color)
                         .Select(group =>
                         new
                         {
@@ -65,8 +66,21 @@ namespace TicketToRideModelingPractice.Extensions
                             Count = group.Count()
                         })
                         .OrderByDescending(x => x.Count)
-                        .First()
-                        .Color;
+                        .Select(x=>x.Color)
+                        .ToList();
+            var selectedColor = colors.First();
+
+            var otherColors = colors.Except(desiredColors);
+            if (otherColors.Any())
+            {
+                while (desiredColors.Contains(selectedColor))
+                {
+                    colors.Remove(selectedColor);
+                    selectedColor = colors.First();
+                }
+            }
+
+            return selectedColor;
         }
 
         public static List<DestinationCard> Shuffle(this List<DestinationCard> cards)
