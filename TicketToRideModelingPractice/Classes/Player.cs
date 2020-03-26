@@ -129,7 +129,7 @@ namespace TicketToRideModelingPractice.Classes
                                           .Distinct()
                                           .ToList();
 
-            if(!DesiredColors.Any())
+            if(!DesiredColors.Any() && Hand.Any())
             {
                 //The player should target what they have the most of
 
@@ -342,8 +342,6 @@ namespace TicketToRideModelingPractice.Classes
             }
 
             DestinationCards.AddRange(keptCards);
-
-            CalculateTargetedRoutes();
 
             Console.WriteLine(Name + " draws new destination cards!");
 

@@ -10,13 +10,16 @@ namespace TicketToRideModelingPractice
     {
         static void Main(string[] args)
         {
+            //Create and setup the game board
             var board = new Board();
 
+            //Create the players
             var player1 = new Player("Alice", PlayerColor.Red, board);
             var player2 = new Player("Bob", PlayerColor.Blue, board);
             var player3 = new Player("Charlie", PlayerColor.Black, board);
             var player4 = new Player("Danielle", PlayerColor.Yellow, board);
 
+            //For each player, deal them 4 train cards
             for(int i = 0; i<4; i++)
             {
                 var cards = board.Deck.Pop(4);
@@ -26,8 +29,11 @@ namespace TicketToRideModelingPractice
                 player4.Hand.Add(cards[3]);
             }
 
+            //Populate the Shown Cards collection
             board.PopulateShownCards();
 
+            //Now that each player has calculated their desired routes and colors,
+            //output that information to the command line.
             player1.OutputPlayerSummary();
             player2.OutputPlayerSummary();
             player3.OutputPlayerSummary();
@@ -36,6 +42,7 @@ namespace TicketToRideModelingPractice
             int remainingTurns = -1;
             bool inFinalTurn = false;
 
+            //While we are not in the final turn, have each player take turns.
             while(remainingTurns == -1 || remainingTurns > 0)
             {
                 if (remainingTurns > 0) remainingTurns--;
