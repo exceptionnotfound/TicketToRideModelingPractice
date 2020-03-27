@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TicketToRideModelingPractice.Enums;
-using TicketToRideModelingPractice.Extensions;
+using TicketToRideModelingPractice.Europe.Enums;
 
-namespace TicketToRideModelingPractice.Classes
+namespace TicketToRideModelingPractice.Europe.Classes
 {
     public class BoardRouteCollection
     {
@@ -14,6 +13,16 @@ namespace TicketToRideModelingPractice.Classes
         public void AddRoute(City origin, City destination, TrainColor color, int length)
         {
             Routes.Add(new BoardRoute(origin, destination, color, length));
+        }
+
+        public void AddTunnel(City origin, City destination, TrainColor color, int length)
+        {
+            Routes.Add(new BoardRoute(origin, destination, color, length, true));
+        }
+
+        public void AddFerry(City origin, City destination, int length, int locomotiveCount)
+        {
+            Routes.Add(new BoardRoute(origin, destination, TrainColor.Grey, length, locomotiveCount));
         }
 
         public BoardRoute GetDirectRoute(City origin, City destination)
@@ -39,7 +48,7 @@ namespace TicketToRideModelingPractice.Classes
         public List<BoardRoute> FindIdealUnclaimedRoute(City origin, City destination)
         {
             List<BoardRoute> returnRoutes = new List<BoardRoute>();
-           
+
             if (origin == destination)
             {
                 return returnRoutes;
@@ -51,7 +60,7 @@ namespace TicketToRideModelingPractice.Classes
 
             //If these methods return no routes, there are no possible routes to finish. 
             //So, we return an empty list
-            if(!masterOriginList.Any() || !masterDestinationList.Any())
+            if (!masterOriginList.Any() || !masterDestinationList.Any())
             {
                 return new List<BoardRoute>();
             }
@@ -107,7 +116,7 @@ namespace TicketToRideModelingPractice.Classes
                 returnRoutes.Add(originDirectRoute);
             }
 
-            if(destinationDirectRoute != null)
+            if (destinationDirectRoute != null)
             {
                 returnRoutes.Add(destinationDirectRoute);
             }
@@ -161,7 +170,7 @@ namespace TicketToRideModelingPractice.Classes
                                                 && x.Length == route.Length
                                                 && x.IsOccupied == false);
 
-            if(matchingRoute.Any())
+            if (matchingRoute.Any())
             {
                 var firstRoute = matchingRoute.First();
                 Routes.Remove(firstRoute);
