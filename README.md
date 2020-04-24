@@ -8,6 +8,6 @@ This series will be published in six parts:
 3. Finding Ideal Routes
 4. Player Claiming Routes
 5. Player Drawing Cards
-6. Structure and Drawbacks
+6. Structure, Scoring, and Drawbacks
 
 Publication dates are forthcoming, most likely this series will begin publishing in May 2020.
